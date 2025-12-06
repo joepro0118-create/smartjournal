@@ -16,7 +16,11 @@ public class API {
      * @return the response body as a String
      * @throws Exception if the request fails
      */
-    public String get(String apiURL) throws Exception {
+
+    private static final String getURL = "https://api.data.gov.my/weather/forecast/?contains=WP%20Kuala%20Lumpur@location__location_name&sort=date&limit=1";
+    private static final String postURL = "https://router.huggingface.co/hf-inference/models/distilbert/distilbert-base-uncased-finetuned-sst-2-english";
+
+    public static String get(String apiURL) throws Exception {
         URL url = new URL(apiURL);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
@@ -50,7 +54,7 @@ public class API {
      * @return the response body as a String
      * @throws Exception if the request fails
      */
-    public String post(String apiURL, String bearerToken, String jsonBody) throws Exception {
+    public static String post(String apiURL, String bearerToken, String jsonBody) throws Exception {
         URL url = new URL(apiURL);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
@@ -89,37 +93,94 @@ public class API {
 
     // Example usage
     public static void main(String[] args) {
-        API api = new API();
+        System.out.println("--- MEMBER 3 FINAL CHECK ---");
 
-        // Load environment variables from .env file (custom loader)
-        Map<String, String> env = EnvLoader.loadEnv(".env");
+        // 1. Test Weather
+        System.out.println("1. Testing Weather...");
+        String weather = getWeather();
+        System.out.println("   [RESULT] " + weather);
 
+        // 2. Test Mood
+        System.out.println("\n2. Testing Mood AI...");
+        // Let's pretend the user wrote a happy diary entry
+        String sampleJournal = "I learned how to code today and it was so much fun!";
+        String mood = getMood(sampleJournal);
+
+        System.out.println("   [INPUT] " + sampleJournal);
+        System.out.println("   [RESULT] " + mood);
+    }
+
+    // --- NEW METHOD: Get the Weather String ---
+    public static String getWeather() {
         try {
-            // --- Example GET request: Fetch latest weather forecast for Kuala Lumpur ---
-            String getUrl = "https://api.data.gov.my/weather/forecast/?contains=WP%20Kuala%20Lumpur@location__location_name&sort=date&limit=1";
-            String getResponse = api.get(getUrl);
-            System.out.println("GET Response:\n" + getResponse);
+            // 1. CALL THE API
+            // This grabs the raw text from the government website
+            String response = get(getURL);
 
-            // --- Example POST request: Perform sentiment analysis using HuggingFace model ---
-            String journalInput = "I spent my free time with my friends today. We had a great time at the park and enjoyed the sunny weather.";
-            String postUrl = "https://router.huggingface.co/hf-inference/models/distilbert/distilbert-base-uncased-finetuned-sst-2-english";
+            // 2. FIND THE START
+            // We are looking for the phrase: "summary_forecast":"
+            String targetLabel = "\"summary_forecast\":\"";
+            int startIndex = response.indexOf(targetLabel);
 
-            // Safely get bearer token
-            String bearerToken = env.get("BEARER_TOKEN");
-            if (bearerToken == null || bearerToken.isEmpty()) {
-                System.err.println("Error: BEARER_TOKEN is not set in the environment.");
-                return;
+            // Safety check: Did we find it?
+            if (startIndex == -1) {
+                return "Weather data unavailable";
             }
 
-            // Format JSON body
-            String jsonBody = "{\"inputs\": \"" + journalInput + "\"}";
+            // Move the index to the END of the label so we start reading the actual weather
+            startIndex = startIndex + targetLabel.length();
 
-            // Call POST
-            String postResponse = api.post(postUrl, bearerToken, jsonBody);
-            System.out.println("\nSentiment Analysis Response:\n" + postResponse);
+            // 3. FIND THE END
+            // The weather description ends at the next quote mark (")
+            int endIndex = response.indexOf("\"", startIndex);
+
+            // 4. CUT IT OUT
+            // Extract the text between the start and end
+            String weather = response.substring(startIndex, endIndex);
+
+            return weather;
+
+        } catch (Exception e) {
+            // If anything breaks (no internet, bad token), print error
+            e.printStackTrace();
+            return "Error fetching weather";
+        }
+    }
+
+    // --- NEW METHOD: Get the Mood (Positive/Negative) ---
+    public static String getMood(String journalText) {
+        try {
+            // 1. PREPARE THE DATA
+            // Load the env map to get the token
+            Map<String, String> env = EnvLoader.loadEnv(".env");
+            String token = env.get("BEARER_TOKEN");
+
+            // Format the user's text into JSON
+            String jsonBody = "{\"inputs\": \"" + journalText + "\"}";
+
+            // 2. CALL THE API
+            // Use the postURL variable we moved to the top
+            String response = post(postURL, token, jsonBody);
+
+            // 3. FIND THE LABEL
+            // The assignment says the highest score is always FIRST.
+            String targetLabel = "\"label\":\"";
+            int startIndex = response.indexOf(targetLabel);
+
+            if (startIndex == -1) return "UNKNOWN";
+
+            // Move index to start of the word
+            startIndex = startIndex + targetLabel.length();
+
+            // Find the end of the word
+            int endIndex = response.indexOf("\"", startIndex);
+
+            // 4. CUT IT OUT
+            return response.substring(startIndex, endIndex);
 
         } catch (Exception e) {
             e.printStackTrace();
+            return "ERROR";
         }
     }
 }
