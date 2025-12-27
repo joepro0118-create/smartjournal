@@ -1,0 +1,4 @@
+Date: 2025-12-27
+Mood: POSITIVE
+Weather: Ribut petir di beberapa tempat
+Content: Today I learned about Java File I/O. It was confusing but I think I got it!
