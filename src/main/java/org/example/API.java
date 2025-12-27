@@ -24,6 +24,7 @@ public class API {
         URL url = new URL(apiURL);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
+        
         // Set HTTP method and headers
         conn.setRequestMethod("GET");
         conn.setRequestProperty("Accept", "application/json");
