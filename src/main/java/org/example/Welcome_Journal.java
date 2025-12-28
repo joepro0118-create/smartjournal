@@ -223,7 +223,7 @@ public class Welcome_Journal {
                 viewTodayJournal(today);
             }
         } else if (update == 2) {
-            handleTodayJournal(today, todayFile);
+            handleTodayJournal(today);
         } else if (update == 3) {
             showJournalMenu();
         } else
