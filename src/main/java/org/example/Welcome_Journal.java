@@ -205,6 +205,12 @@ public class Welcome_Journal {
         boolean viewDayValid = false;
         int viewDay = 0;
         if (update == 1) {
+            // Show date list before selecting a date to view
+            System.out.println("\n=== Journal Dates ===");
+            System.out.println("1. " + today.minusDays(3).format(today_format));
+            System.out.println("2. " + today.minusDays(2).format(today_format));
+            System.out.println("3. " + today.minusDays(1).format(today_format));
+            System.out.println("4. " + today.format(today_format) + " (Today)");
             System.out.println("Select a date to view journal.");
             System.out.print(">");
             do {
