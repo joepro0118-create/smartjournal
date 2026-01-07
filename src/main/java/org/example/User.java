@@ -13,7 +13,7 @@ public class User {
 
     // Getters
     public String getEmail() { return email; }
-    public String getDisplayName() { return displayName; }
+    public  String getDisplayName() { return displayName; }
     public String getPassword() { return password; }
 
     // Helper to format data for the text file

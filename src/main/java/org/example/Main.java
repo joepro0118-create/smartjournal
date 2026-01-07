@@ -30,14 +30,21 @@ public class Main {
                     if (user != null) {
                         System.out.println("SUCCESS: Welcome back, " + user.getDisplayName());
 
-                        // Gate smart journal system features behind login
                         Welcome.printGreeting(user.getDisplayName());
-                        Welcome_Journal welcome = new Welcome_Journal(user.getDisplayName());
+
+                        final boolean[] backToFeatures = { false };
+                        Welcome_Journal welcome = new Welcome_Journal(
+                                user.getEmail(),
+                                user.getDisplayName(),
+                                () -> backToFeatures[0] = true
+                        );
 
                         boolean loggedIn = true;
                         while (loggedIn) {
+                            backToFeatures[0] = false;
+
                             System.out.println("\n--- SMART JOURNAL FEATURES ---");
-                            System.out.println("1. Show Welcome Menu");
+                            System.out.println("1. Journal");
                             System.out.println("2. Weekly Summary");
                             System.out.println("3. Logout");
                             System.out.print("Choose an option: ");
@@ -45,10 +52,14 @@ public class Main {
                             String featureChoice = scanner.nextLine();
                             switch (featureChoice) {
                                 case "1":
-                                    welcome.displayMenu();
+                                    welcome.showJournalMenu();
+                                    // if user pressed Back, just show the features menu again
+                                    if (backToFeatures[0]) {
+                                        continue;
+                                    }
                                     break;
                                 case "2":
-                                    WeeklySummary.showSummary();
+                                    WeeklySummary.showSummary(user.getEmail());
                                     break;
                                 case "3":
                                     System.out.println("You have been logged out.");

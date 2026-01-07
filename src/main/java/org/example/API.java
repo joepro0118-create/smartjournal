@@ -5,26 +5,90 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.Locale;
 import java.util.Map;
 
 public class API {
 
-    /**
-     * Sends a GET request to the specified API URL.
-     * 
-     * @param apiURL the URL to send the GET request to
-     * @return the response body as a String
-     * @throws Exception if the request fails
-     */
+    // NOTE: Weather source is Malaysia gov forecast API.
+    // NOTE: Mood source is HuggingFace sentiment model.
 
     private static final String getURL = "https://api.data.gov.my/weather/forecast/?contains=WP%20Kuala%20Lumpur@location__location_name&sort=date&limit=1";
     private static final String postURL = "https://router.huggingface.co/hf-inference/models/distilbert/distilbert-base-uncased-finetuned-sst-2-english";
 
+    // Small helper: escape text so it's safe inside a JSON string
+    private static String jsonEscape(String s) {
+        if (s == null) return "";
+        StringBuilder out = new StringBuilder();
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            switch (c) {
+                case '\\': out.append("\\\\"); break;
+                case '"': out.append("\\\""); break;
+                case '\n': out.append("\\n"); break;
+                case '\r': out.append("\\r"); break;
+                case '\t': out.append("\\t"); break;
+                default: out.append(c);
+            }
+        }
+        return out.toString();
+    }
+
+    private static boolean isDebugEnabled() {
+        // Enable by setting API_DEBUG=true in environment variables or .env
+        // (System env is checked first.)
+        String v = System.getenv("API_DEBUG");
+        if (v != null) return "true".equalsIgnoreCase(v.trim());
+
+        try {
+            Map<String, String> env = EnvLoader.loadEnv(".env");
+            v = env.get("API_DEBUG");
+            return v != null && "true".equalsIgnoreCase(v.trim());
+        } catch (Exception ignore) {
+            return false;
+        }
+    }
+
+    // Very small local fallback so obvious cases work even if API fails/rate-limits
+    private static String fallbackMood(String journalText) {
+        if (journalText == null) return "NEUTRAL";
+        String t = journalText.toLowerCase(Locale.ROOT);
+
+        // normalize common apostrophes/shortcuts
+        t = t.replace("i'm", "im");
+        t = t.replace("can't", "cant");
+        t = t.replace("won't", "wont");
+
+        // Negative keywords (expanded)
+        if (t.contains("sad") || t.contains("depressed") || t.contains("unhappy") || t.contains("angry") || t.contains("upset")
+                || t.contains("hate") || t.contains("bad") || t.contains("tired") || t.contains("stress") || t.contains("stressed")
+                || t.contains("cry") || t.contains("crying") || t.contains("tears") || t.contains("terrible") || t.contains("broken")
+                || t.contains("lonely") || t.contains("hurt") || t.contains("pain") || t.contains("down")) {
+            return "NEGATIVE";
+        }
+
+        // Positive keywords
+        if (t.contains("happy") || t.contains("great") || t.contains("good") || t.contains("fun") || t.contains("love")
+                || t.contains("excited") || t.contains("awesome") || t.contains("nice") || t.contains("amazing")) {
+            return "POSITIVE";
+        }
+
+        return "NEUTRAL";
+    }
+
+    /**
+     * Sends a GET request to the specified API URL.
+     *
+     * @param apiURL the URL to send the GET request to
+     * @return the response body as a String
+     * @throws Exception if the request fails
+     */
     public static String get(String apiURL) throws Exception {
         URL url = new URL(apiURL);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
-        
         // Set HTTP method and headers
         conn.setRequestMethod("GET");
         conn.setRequestProperty("Accept", "application/json");
@@ -48,7 +112,7 @@ public class API {
 
     /**
      * Sends a POST request with JSON body and Bearer token authentication.
-     * 
+     *
      * @param apiURL      the URL to send the POST request to
      * @param bearerToken the bearer token for Authorization header
      * @param jsonBody    the JSON payload as a string
@@ -92,57 +156,36 @@ public class API {
         return sb.toString();
     }
 
-    // Example usage
+    // Optional manual test runner (only used if you run `java org.example.API` directly)
     public static void main(String[] args) {
-        System.out.println("--- MEMBER 3 FINAL CHECK ---");
-
-        // 1. Test Weather
-        System.out.println("1. Testing Weather...");
-        String weather = getWeather();
-        System.out.println("   [RESULT] " + weather);
-
-        // 2. Test Mood
-        System.out.println("\n2. Testing Mood AI...");
-        // Let's pretend the user wrote a happy diary entry
-        String sampleJournal = "I learned how to code today and it was so much fun!";
-        String mood = getMood(sampleJournal);
-
-        System.out.println("   [INPUT] " + sampleJournal);
-        System.out.println("   [RESULT] " + mood);
+        System.out.println("Weather now: " + getWeather());
+        System.out.println("Mood test (happy): " + getMood("I feel great today"));
+        System.out.println("Mood test (sad)  : " + getMood("I feel sad and want to cry"));
     }
 
     // --- NEW METHOD: Get the Weather String ---
     public static String getWeather() {
         try {
-            // 1. CALL THE API
-            // This grabs the raw text from the government website
-            String response = get(getURL);
+            // Add a cache-buster to reduce chance of stale/cached responses
+            String cacheBustedUrl = getURL + "&t=" + URLEncoder.encode(String.valueOf(System.currentTimeMillis()), StandardCharsets.UTF_8);
+            String response = get(cacheBustedUrl);
 
-            // 2. FIND THE START
-            // We are looking for the phrase: "summary_forecast":"
             String targetLabel = "\"summary_forecast\":\"";
             int startIndex = response.indexOf(targetLabel);
-
-            // Safety check: Did we find it?
             if (startIndex == -1) {
                 return "Weather data unavailable";
             }
-
-            // Move the index to the END of the label so we start reading the actual weather
             startIndex = startIndex + targetLabel.length();
 
-            // 3. FIND THE END
-            // The weather description ends at the next quote mark (")
             int endIndex = response.indexOf("\"", startIndex);
+            if (endIndex == -1 || endIndex <= startIndex) {
+                return "Weather data unavailable";
+            }
 
-            // 4. CUT IT OUT
-            // Extract the text between the start and end
-            String weather = response.substring(startIndex, endIndex);
-
-            return weather;
+            String weather = response.substring(startIndex, endIndex).trim();
+            return weather.isEmpty() ? "Weather data unavailable" : weather;
 
         } catch (Exception e) {
-            // If anything breaks (no internet, bad token), print error
             e.printStackTrace();
             return "Error fetching weather";
         }
@@ -150,38 +193,67 @@ public class API {
 
     // --- NEW METHOD: Get the Mood (Positive/Negative) ---
     public static String getMood(String journalText) {
+        String local = fallbackMood(journalText);
+        boolean debug = isDebugEnabled();
+
         try {
-            // 1. PREPARE THE DATA
-            // Load the env map to get the token
             Map<String, String> env = EnvLoader.loadEnv(".env");
             String token = env.get("BEARER_TOKEN");
+            if (token == null) {
+                if (debug) System.out.println("[API.getMood] No token; using fallback=" + local);
+                return local;
+            }
+            token = token.trim();
+            if (token.isEmpty()) {
+                if (debug) System.out.println("[API.getMood] Empty token; using fallback=" + local);
+                return local;
+            }
 
-            // Format the user's text into JSON
-            String jsonBody = "{\"inputs\": \"" + journalText + "\"}";
+            String safeText = jsonEscape(journalText);
+            String jsonBody = "{\"inputs\":\"" + safeText + "\"}";
 
-            // 2. CALL THE API
-            // Use the postURL variable we moved to the top
             String response = post(postURL, token, jsonBody);
 
-            // 3. FIND THE LABEL
-            // The assignment says the highest score is always FIRST.
             String targetLabel = "\"label\":\"";
             int startIndex = response.indexOf(targetLabel);
+            if (startIndex == -1) {
+                if (debug) System.out.println("[API.getMood] No label in response; using fallback=" + local + " response=" + response);
+                return local;
+            }
 
-            if (startIndex == -1) return "UNKNOWN";
-
-            // Move index to start of the word
             startIndex = startIndex + targetLabel.length();
-
-            // Find the end of the word
             int endIndex = response.indexOf("\"", startIndex);
+            if (endIndex == -1) {
+                if (debug) System.out.println("[API.getMood] Bad label parse; using fallback=" + local + " response=" + response);
+                return local;
+            }
 
-            // 4. CUT IT OUT
-            return response.substring(startIndex, endIndex);
+            String label = response.substring(startIndex, endIndex).trim().toUpperCase(Locale.ROOT);
+            String normalized;
+            if (label.contains("NEG")) normalized = "NEGATIVE";
+            else if (label.contains("POS")) normalized = "POSITIVE";
+            else normalized = local;
+
+            // If the AI says POSITIVE but our fallback sees strong negative cues, trust the fallback.
+            // This avoids obvious misclassifications like "...to cry".
+            if ("POSITIVE".equals(normalized) && "NEGATIVE".equals(local)) {
+                normalized = "NEGATIVE";
+                if (debug) {
+                    System.out.println("[API.getMood] Overriding AI POSITIVE due to strong negative keywords; using NEGATIVE");
+                }
+            }
+
+            if (debug) {
+                System.out.println("[API.getMood] AI label=" + label + " normalized=" + normalized + " fallback=" + local);
+            }
+
+            return normalized;
 
         } catch (Exception e) {
-            e.printStackTrace();
-            return "ERROR";
+            if (debug) {
+                System.out.println("[API.getMood] Exception calling API; using fallback=" + local + " error=" + e.getMessage());
+            }
+            return local;
         }
     }
 }
