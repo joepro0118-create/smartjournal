@@ -2,23 +2,61 @@ import React, { useState, useEffect } from 'react';
 import Sidebar from './components/Sidebar';
 import TopBar from './components/TopBar';
 import Editor from './components/Editor';
+import Login from './components/Login';
 import { getEntries, saveEntry, createNewEntry } from './storage';
 
 function App() {
+  const [currentUser, setCurrentUser] = useState(null);
   const [entries, setEntries] = useState([]);
   const [selectedEntry, setSelectedEntry] = useState(null);
   const [currentEntry, setCurrentEntry] = useState(null);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
+  // Check for existing session on mount
+  useEffect(() => {
+    const savedUser = localStorage.getItem('smart_journal_current_user');
+    if (savedUser) {
+      setCurrentUser(JSON.parse(savedUser));
+    }
+  }, []);
+
   // Load entries on mount
   useEffect(() => {
-    const loadedEntries = getEntries();
-    // Sort by date, newest first
-    const sorted = loadedEntries.sort((a, b) =>
-      new Date(b.date) - new Date(a.date)
-    );
-    setEntries(sorted);
-  }, []);
+    if (!currentUser) return;
+
+    const loadEntries = async () => {
+      try {
+        const loadedEntries = await getEntries();
+        // Sort by date, newest first
+        const sorted = loadedEntries.sort((a, b) =>
+          new Date(b.date) - new Date(a.date)
+        );
+        setEntries(sorted);
+      } catch (error) {
+        console.error('Failed to load entries:', error);
+      }
+    };
+
+    loadEntries();
+  }, [currentUser]);
+
+  const handleLogin = (user) => {
+    setCurrentUser(user);
+    localStorage.setItem('smart_journal_current_user', JSON.stringify(user));
+  };
+
+  const handleLogout = () => {
+    if (hasUnsavedChanges) {
+      const confirm = window.confirm('You have unsaved changes. Do you want to discard them?');
+      if (!confirm) return;
+    }
+    setCurrentUser(null);
+    localStorage.removeItem('smart_journal_current_user');
+    setEntries([]);
+    setSelectedEntry(null);
+    setCurrentEntry(null);
+    setHasUnsavedChanges(false);
+  };
 
   const handleNewEntry = () => {
     const newEntry = createNewEntry();
@@ -42,16 +80,21 @@ function App() {
     setHasUnsavedChanges(true);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!currentEntry) return;
 
-    const updatedEntries = saveEntry(currentEntry);
-    const sorted = updatedEntries.sort((a, b) =>
-      new Date(b.date) - new Date(a.date)
-    );
-    setEntries(sorted);
-    setSelectedEntry(currentEntry);
-    setHasUnsavedChanges(false);
+    try {
+      const updatedEntries = await saveEntry(currentEntry);
+      const sorted = updatedEntries.sort((a, b) =>
+        new Date(b.date) - new Date(a.date)
+      );
+      setEntries(sorted);
+      setSelectedEntry(currentEntry);
+      setHasUnsavedChanges(false);
+    } catch (error) {
+      console.error('Failed to save entry:', error);
+      alert('Failed to save entry. Please try again.');
+    }
   };
 
   // Auto-save on Ctrl+S
@@ -69,6 +112,11 @@ function App() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [hasUnsavedChanges, currentEntry]);
 
+  // Show login page if user is not logged in
+  if (!currentUser) {
+    return <Login onLogin={handleLogin} />;
+  }
+
   return (
     <div className="flex h-screen bg-dark-bg overflow-hidden">
       <Sidebar
@@ -81,7 +129,9 @@ function App() {
       <div className="flex-1 flex flex-col overflow-hidden">
         <TopBar
           currentEntry={currentEntry}
+          currentUser={currentUser}
           onSave={handleSave}
+          onLogout={handleLogout}
           hasUnsavedChanges={hasUnsavedChanges}
         />
 

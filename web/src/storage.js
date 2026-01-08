@@ -1,24 +1,87 @@
-// LocalStorage utilities for journal entries
+// Storage utilities for journal entries
+import { journalAPI } from './api';
 
 const STORAGE_KEY = 'smart_journal_entries';
 
-export const getEntries = () => {
-  const stored = localStorage.getItem(STORAGE_KEY);
-  return stored ? JSON.parse(stored) : [];
+// Get current user from session
+const getCurrentUser = () => {
+  const user = localStorage.getItem('smart_journal_current_user');
+  return user ? JSON.parse(user) : null;
 };
 
-export const saveEntry = (entry) => {
-  const entries = getEntries();
-  const existingIndex = entries.findIndex(e => e.id === entry.id);
+export const getEntries = async () => {
+  const user = getCurrentUser();
+  if (!user) return [];
 
-  if (existingIndex >= 0) {
-    entries[existingIndex] = entry;
-  } else {
-    entries.push(entry);
+  try {
+    const backendEntries = await journalAPI.getEntries(user.email);
+
+    // Convert backend format to frontend format
+    return backendEntries.map(entry => ({
+      id: entry.id,
+      title: entry.date || 'Untitled Entry',
+      content: entry.content || '',
+      date: entry.date ? new Date(entry.date).toISOString() : new Date().toISOString(),
+      preview: generatePreview(entry.content),
+      weather: entry.weather || '',
+      mood: entry.mood || ''
+    }));
+  } catch (error) {
+    console.error('Failed to load entries from backend:', error);
+    // Fallback to localStorage
+    const stored = localStorage.getItem(STORAGE_KEY);
+    return stored ? JSON.parse(stored) : [];
+  }
+};
+
+export const saveEntry = async (entry) => {
+  const user = getCurrentUser();
+  if (!user) {
+    throw new Error('No user logged in');
   }
 
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
-  return entries;
+  try {
+    // Extract date from entry (format: YYYY-MM-DD)
+    const date = new Date(entry.date).toISOString().split('T')[0];
+
+    // Save to backend
+    const response = await journalAPI.saveEntry(user.email, date, entry.content);
+
+    // Update the entry with weather and mood from backend
+    entry.weather = response.weather;
+    entry.mood = response.mood;
+
+    // Also save to localStorage as backup
+    const entries = localStorage.getItem(STORAGE_KEY);
+    const parsed = entries ? JSON.parse(entries) : [];
+    const existingIndex = parsed.findIndex(e => e.id === entry.id);
+
+    if (existingIndex >= 0) {
+      parsed[existingIndex] = entry;
+    } else {
+      parsed.push(entry);
+    }
+
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
+
+    // Reload entries from backend
+    return await getEntries();
+  } catch (error) {
+    console.error('Failed to save to backend:', error);
+    // Fallback to localStorage only
+    const entries = localStorage.getItem(STORAGE_KEY);
+    const parsed = entries ? JSON.parse(entries) : [];
+    const existingIndex = parsed.findIndex(e => e.id === entry.id);
+
+    if (existingIndex >= 0) {
+      parsed[existingIndex] = entry;
+    } else {
+      parsed.push(entry);
+    }
+
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
+    return parsed;
+  }
 };
 
 export const deleteEntry = (id) => {
