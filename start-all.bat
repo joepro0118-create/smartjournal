@@ -29,8 +29,9 @@ if not defined JAVA_HOME if exist "C:\Program Files\Java\jdk-25\bin\java.exe" (
 echo Using JAVA_HOME=%JAVA_HOME%
 echo.
 
-REM --- Backend (Console Java app) ---
-start "SmartJournal Backend" powershell -NoExit -ExecutionPolicy Bypass -Command "$env:JAVA_HOME='%JAVA_HOME%'; Set-Location -LiteralPath '%ROOT%'; Write-Host ('JAVA_HOME=' + $env:JAVA_HOME); .\mvnw.cmd -q -DskipTests package; if ($LASTEXITCODE -ne 0) { Write-Host 'Build failed' -ForegroundColor Red; exit 1 }; java -jar .\target\FOP_ASSIGNMENT-1.0-SNAPSHOT.jar"
+REM --- Backend (Spring Boot) ---
+REM Use cmd so the window stays open and shows any errors.
+start "SmartJournal Backend" cmd /k "set \"JAVA_HOME=%JAVA_HOME%\" && set \"PATH=%JAVA_HOME%\bin;%PATH%\" && cd /d \"%ROOT%\" && call start-backend.bat"
 
 REM --- Frontend (Vite) ---
 start "SmartJournal Frontend" powershell -NoExit -ExecutionPolicy Bypass -Command "Set-Location -LiteralPath '%ROOT%web'; if (!(Test-Path node_modules)) { npm install }; npm run dev"
