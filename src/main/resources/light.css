@@ -1,0 +1,138 @@
+.root-pane { -fx-background-color: #f4f7f6; }
+
+.login-card, .journal-card {
+    -fx-background-color: white;
+    -fx-background-radius: 30;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 5);
+}
+
+.modern-input, .modern-textarea {
+    -fx-background-color: white;
+    -fx-text-fill: #2d3436;
+    -fx-border-color: #ddd;
+    -fx-background-radius: 20;
+    -fx-border-radius: 20;
+    -fx-padding: 10 15;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+.modern-textarea, .modern-input {
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+    -fx-border-color: #444; /* Use a subtle dark border for dark mode */
+    -fx-border-width: 1;
+}
+.super-header-label {
+    -fx-text-fill: #2d3436;
+    -fx-font-size: 36px;
+    -fx-font-weight: bold; }
+
+.header-label {
+    -fx-text-fill: white;
+    -fx-font-size: 35px; }
+
+.clock-label {
+    -fx-text-fill: #0984e3;
+    -fx-font-size: 42px;
+    -fx-font-weight: bold; }
+
+.table-header {
+    -fx-text-fill: #0984e3;
+    -fx-font-weight: bold;
+    -fx-font-size: 20px; }
+
+.table-header {
+    -fx-font-size: 20px; /* Slightly larger headers to match */
+    -fx-font-weight: bold;
+    -fx-text-fill: #3498db;
+}
+/* Match Mode Toggle with Main Menu button style */
+.theme-toggle {
+    -fx-background-color: #dfe6e9; /* Match secondary-button color */
+    -fx-text-fill: #2d3436;
+    -fx-background-radius: 25;
+    -fx-border-radius: 25;
+    -fx-padding: 5 15;
+}
+
+.theme-toggle:selected {
+    -fx-background-color: #b2bec3; /* Subtle change when toggled */
+}
+
+/* Ensure the white border is gone in Light Mode too */
+.modern-textarea {
+    -fx-background-color: white;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+    -fx-background-insets: 0;
+    -fx-font-size: 25px;
+    -fx-font-weight: bold;
+}
+
+.modern-textarea .content {
+    -fx-background-color: white !important;
+}
+
+/* New class for the 7-day date selection buttons */
+.date-select-button {
+    -fx-font-size: 12px; /* Increased size */
+    -fx-font-weight: bold; /* Bold text */
+    -fx-background-radius: 20;
+    -fx-background-color: #dfe6e9;
+    -fx-padding: 8 12;
+}
+
+/* Optional: Highlight for the currently selected date */
+.date-select-button:focused {
+    -fx-border-color: #3498db;
+    -fx-border-width: 2;
+    -fx-border-radius: 20;
+
+    -fx-text-fill: #2d3436;
+}
+
+.mood-positive {
+    -fx-text-fill: #27ae60 !important; /* Bold Green */
+    -fx-font-weight: bold;
+}
+.mood-negative {
+    -fx-text-fill: #e74c3c !important; /* Bold Red */
+    -fx-font-weight: bold;
+}
+
+/*.table-row-text { -fx-text-fill: #2d3436; -fx-font-size: 18px; }*/
+.table-row-text {
+    -fx-font-size: 18px; /* Increased from 14px for better visibility */
+    -fx-font-weight: bold;
+    -fx-text-fill: #2d3436; /* Ensure it is white in dark.css */
+    -fx-font-family: "Segoe UI", Arial;
+}
+
+.primary-button { -fx-background-color: #0984e3; -fx-text-fill: white; -fx-background-radius: 25;-fx-font-weight: bold; }
+.secondary-button { -fx-background-color: #dfe6e9; -fx-text-fill: #2d3436; -fx-background-radius: 25; }
+
+.icon-button {
+    -fx-background-color: #dfe6e9;
+    -fx-text-fill: #0984e3;
+    -fx-background-radius: 50%;
+    -fx-min-width: 35;
+    -fx-min-height: 35;
+}
+
+.header-label {
+    -fx-font-size: 35px; /* Match Dark Mode exactly */
+    -fx-text-fill: #2d3436;
+    -fx-font-weight: bold;
+}
+
+
+.weather-display-label {
+    -fx-font-size: 24px; /* Increased from 20px or 22px */
+    -fx-font-weight: bold;
+    -fx-text-fill: #3498db; /* Using a clear blue for high visibility */
+    -fx-font-family: "Segoe UI", Helvetica, Arial, sans-serif;
+}
+.secondary-button:hover {
+    -fx-background-color: #e74c3c; /* Red color to indicate danger/clear action */
+    -fx-text-fill: white;
+}

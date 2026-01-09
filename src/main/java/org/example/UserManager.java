@@ -24,13 +24,16 @@ public class UserManager {
             String email;
             while ((email = reader.readLine()) != null) {
                 email = email.trim();
-                if (email.isEmpty()) continue; // Skip blank lines
+                if (email.isEmpty()) continue;
 
                 String name = reader.readLine();
                 String hashedPass = reader.readLine();
 
+                // Check if the file ended prematurely
                 if (name != null && hashedPass != null) {
                     users.add(new User(email, name.trim(), hashedPass.trim()));
+                } else {
+                    System.err.println("Warning: Malformed data for user " + email);
                 }
             }
         } catch (IOException e) {
@@ -69,6 +72,8 @@ public class UserManager {
             // Compare against cleaned stored data
             String storedEmail = u.getEmail().trim().toLowerCase();
             String storedHash = u.getPassword().trim();
+            System.out.println("Checking: " + cleanEmail + " against stored: " + u.getEmail());
+            System.out.println("Hash match: " + u.getPassword().equals(inputHash));
 
             if (storedEmail.equals(cleanEmail) && storedHash.equals(inputHash)) {
                 return u;
@@ -96,11 +101,15 @@ public class UserManager {
     }
 
     private void saveUserToFile(User user) {
-        // Use OutputStreamWriter to force UTF-8 when saving
-        try (PrintWriter writer = new PrintWriter(new OutputStreamWriter(new FileOutputStream(FILE_PATH, true), StandardCharsets.UTF_8))) {
-            writer.println(user.getEmail());
-            writer.println(user.getDisplayName());
-            writer.println(user.getPassword());
+        try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(
+                new FileOutputStream(FILE_PATH, true), StandardCharsets.UTF_8))) {
+            bw.write(user.getEmail());
+            bw.newLine();
+            bw.write(user.getDisplayName());
+            bw.newLine();
+            bw.write(user.getPassword());
+            bw.newLine();
+            bw.flush(); // Forces the data to be written to the disk immediately
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -1,0 +1,334 @@
+Today is the first journal of John
+Today is the second journal of John
+Today is the third journal of John
+Today is the first journal of John
+Today is the second journal of John
+Today is the third journal of John
+2025-12-24 Today is the first journal of John
+2025-12-25 Today is the second journal of John
+2025-12-26 Today is the third journal of John
+2025-12-24 Today is the first journal of John
+2025-12-25 Today is the second journal of John
+2025-12-26 Today is the third journal of John
+2025-12-27 
+2025-12-24 Today is the first journal of John
+2025-12-25 Today is the second journal of John
+2025-12-26 Today is the third journal of John
+2025-12-27 I am happy.
+Date : 2025-12-24
+Content : Today is the first journal of John
+Weather : A
+Mood : POSITIVE
+Date : 2025-12-25
+Content : Today is the second journal of John
+Weather : B
+Mood : NEGATIVE
+Date : 2025-12-26
+Content : Today is the third journal of John
+Weather : C
+Mood : POSITIVE
+Date : 2025-12-24
+Content : Today is the first journal of John
+Weather : A
+Mood : POSITIVE
+Date : 2025-12-25
+Content : Today is the second journal of John
+Weather : B
+Mood : NEGATIVE
+Date : 2025-12-26
+Content : Today is the third journal of John
+Weather : C
+Mood : POSITIVE
+2025-12-27 Complete coding.
+Date : 2025-12-24
+Content : Today is the first journal of John
+Weather : A
+Mood : POSITIVE
+Date : 2025-12-25
+Content : Today is the second journal of John
+Weather : B
+Mood : NEGATIVE
+Date : 2025-12-26
+Content : Today is the third journal of John
+Weather : C
+Mood : POSITIVE
+2025-12-27 happy
+Date : 2025-12-24
+Content : Today is the first journal of John
+Weather : A
+Mood : POSITIVE
+Date : 2025-12-25
+Content : Today is the second journal of John
+Weather : B
+Mood : NEGATIVE
+Date : 2025-12-26
+Content : Today is the third journal of John
+Weather : C
+Mood : POSITIVE
+2025-12-27 happy
+Date : 2025-12-24
+Content : Today is the first journal of John
+Weather : A
+Mood : POSITIVE
+Date : 2025-12-25
+Content : Today is the second journal of John
+Weather : B
+Mood : NEGATIVE
+Date : 2025-12-26
+Content : Today is the third journal of John
+Weather : C
+Mood : POSITIVE
+2025-12-27 happy
+Date : 2025-12-24
+Content : Today is the first journal of John
+Weather : A
+Mood : POSITIVE
+Date : 2025-12-25
+Content : Today is the second journal of John
+Weather : B
+Mood : NEGATIVE
+Date : 2025-12-26
+Content : Today is the third journal of John
+Weather : C
+Mood : POSITIVE
+2025-12-27 happy
+Date : 2025-12-24
+Content : Today is the first journal of John
+Weather : A
+Mood : POSITIVE
+Date : 2025-12-25
+Content : Today is the second journal of John
+Weather : B
+Mood : NEGATIVE
+Date : 2025-12-26
+Content : Today is the third journal of John
+Weather : C
+Mood : POSITIVE
+2025-12-27 happy
+Date : 2025-12-24
+Content : Today is the first journal of John
+Weather : A
+Mood : POSITIVE
+Date : 2025-12-25
+Content : Today is the second journal of John
+Weather : B
+Mood : NEGATIVE
+Date : 2025-12-26
+Content : Today is the third journal of John
+Weather : C
+Mood : POSITIVE
+Date : 2025-12-24
+Content : Today is the first journal of John
+Weather : A
+Mood : POSITIVE
+Date : 2025-12-25
+Content : Today is the second journal of John
+Weather : B
+Mood : NEGATIVE
+Date : 2025-12-26
+Content : Today is the third journal of John
+Weather : C
+Mood : POSITIVE
+Date : 2025-12-24
+Content : Today is the first journal of John
+Weather : A
+Mood : POSITIVE
+Date : 2025-12-25
+Content : Today is the second journal of John
+Weather : B
+Mood : NEGATIVE
+Date : 2025-12-26
+Content : Today is the third journal of John
+Weather : C
+Mood : POSITIVE
+Date : 2025-12-24
+Content : Today is the first journal of John
+Weather : A
+Mood : POSITIVE
+Date : 2025-12-25
+Content : Today is the second journal of John
+Weather : B
+Mood : NEGATIVE
+Date : 2025-12-26
+Content : Today is the third journal of John
+Weather : C
+Mood : POSITIVE
+Date : 2025-12-24
+Content : Today is the first journal of John
+Weather : A
+Mood : POSITIVE
+Date : 2025-12-25
+Content : Today is the second journal of John
+Weather : B
+Mood : NEGATIVE
+Date : 2025-12-26
+Content : Today is the third journal of John
+Weather : C
+Mood : POSITIVE
+Date : 2025-12-24
+Content : Today is the first journal of John
+Weather : A
+Mood : POSITIVE
+Date : 2025-12-25
+Content : Today is the second journal of John
+Weather : B
+Mood : NEGATIVE
+Date : 2025-12-26
+Content : Today is the third journal of John
+Weather : C
+Mood : POSITIVE
+Date : 2025-12-24
+Content : Today is the first journal of John
+Weather : A
+Mood : POSITIVE
+Date : 2025-12-25
+Content : Today is the second journal of John
+Weather : B
+Mood : NEGATIVE
+Date : 2025-12-26
+Content : Today is the third journal of John
+Weather : C
+Mood : POSITIVE
+Date : 2025-12-24
+Content : Today is the first journal of John
+Weather : A
+Mood : POSITIVE
+Date : 2025-12-25
+Content : Today is the second journal of John
+Weather : B
+Mood : NEGATIVE
+Date : 2025-12-26
+Content : Today is the third journal of John
+Weather : C
+Mood : POSITIVE
+Date : 2025-12-24
+Content : Today is the first journal of John
+Weather : A
+Mood : POSITIVE
+Date : 2025-12-25
+Content : Today is the second journal of John
+Weather : B
+Mood : NEGATIVE
+Date : 2025-12-26
+Content : Today is the third journal of John
+Weather : C
+Mood : POSITIVE
+2025-12-27 
+Date : 2025-12-24
+Content : Today is the first journal of John
+Weather : A
+Mood : POSITIVE
+Date : 2025-12-25
+Content : Today is the second journal of John
+Weather : B
+Mood : NEGATIVE
+Date : 2025-12-26
+Content : Today is the third journal of John
+Weather : C
+Mood : POSITIVE
+Date : 2025-12-24
+Content : Today is the first journal of John
+Weather : A
+Mood : POSITIVE
+Date : 2025-12-25
+Content : Today is the second journal of John
+Weather : B
+Mood : NEGATIVE
+Date : 2025-12-26
+Content : Today is the third journal of John
+Weather : C
+Mood : POSITIVE
+Date : 2025-12-24
+Content : Today is the first journal of John
+Weather : A
+Mood : POSITIVE
+Date : 2025-12-25
+Content : Today is the second journal of John
+Weather : B
+Mood : NEGATIVE
+Date : 2025-12-26
+Content : Today is the third journal of John
+Weather : C
+Mood : POSITIVE
+Date : 2025-12-24
+Content : Today is the first journal of John
+Weather : A
+Mood : POSITIVE
+Date : 2025-12-25
+Content : Today is the second journal of John
+Weather : B
+Mood : NEGATIVE
+Date : 2025-12-26
+Content : Today is the third journal of John
+Weather : C
+Mood : POSITIVE
+Date : 2025-12-24
+Content : Today is the first journal of John
+Weather : A
+Mood : POSITIVE
+Date : 2025-12-25
+Content : Today is the second journal of John
+Weather : B
+Mood : NEGATIVE
+Date : 2025-12-26
+Content : Today is the third journal of John
+Weather : C
+Mood : POSITIVE
+2025-12-27 happy
+Date : 2025-12-24
+Content : Today is the first journal of John
+Weather : A
+Mood : POSITIVE
+Date : 2025-12-25
+Content : Today is the second journal of John
+Weather : B
+Mood : NEGATIVE
+Date : 2025-12-26
+Content : Today is the third journal of John
+Weather : C
+Mood : POSITIVE
+2025-12-27 happy
+Date : 2025-12-24
+Content : Today is the first journal of John
+Weather : A
+Mood : POSITIVE
+Date : 2025-12-25
+Content : Today is the second journal of John
+Weather : B
+Mood : NEGATIVE
+Date : 2025-12-26
+Content : Today is the third journal of John
+Weather : C
+Mood : POSITIVE
+Date : 2025-12-24
+Content : Today is the first journal of John
+Weather : A
+Mood : POSITIVE
+Date : 2025-12-25
+Content : Today is the second journal of John
+Weather : B
+Mood : NEGATIVE
+Date : 2025-12-26
+Content : Today is the third journal of John
+Weather : C
+Mood : POSITIVE
+Date: 2025-12-27
+Content : happy
+Weather : Hujan di beberapa tempat
+Mood : POSITIVE
+Date : 2025-12-24
+Content : Today is the first journal of John
+Weather : A
+Mood : POSITIVE
+Date : 2025-12-25
+Content : Today is the second journal of John
+Weather : B
+Mood : NEGATIVE
+Date : 2025-12-26
+Content : Today is the third journal of John
+Weather : C
+Mood : POSITIVE
+Date: 2025-12-27
+Content : happy
+Weather : Hujan di beberapa tempat
+Mood : POSITIVE

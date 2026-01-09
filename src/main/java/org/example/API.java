@@ -20,6 +20,9 @@ public class API {
     private static final String getURL = "https://api.data.gov.my/weather/forecast/?contains=WP%20Kuala%20Lumpur@location__location_name&sort=date&limit=1";
     private static final String postURL = "https://router.huggingface.co/hf-inference/models/distilbert/distilbert-base-uncased-finetuned-sst-2-english";
 
+    // Cache weather for current session
+    private static String cachedWeather = null;
+
     public static String get(String apiURL) throws Exception {
         URL url = new URL(apiURL);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -113,6 +116,9 @@ public class API {
 
     // --- NEW METHOD: Get the Weather String ---
     public static String getWeather() {
+        if (cachedWeather != null) {
+            return cachedWeather; // reuse cached value
+        }
         try {
             // 1. CALL THE API
             // This grabs the raw text from the government website
@@ -137,9 +143,12 @@ public class API {
 
             // 4. CUT IT OUT
             // Extract the text between the start and end
-            String weather = response.substring(startIndex, endIndex);
+            //String weather = response.substring(startIndex, endIndex);
 
-            return weather;
+            cachedWeather = response.substring(startIndex, endIndex); // store in cache
+            return cachedWeather;
+
+            //return weather;
 
         } catch (Exception e) {
             // If anything breaks (no internet, bad token), print error
