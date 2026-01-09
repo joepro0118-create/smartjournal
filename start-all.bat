@@ -29,9 +29,8 @@ if not defined JAVA_HOME if exist "C:\Program Files\Java\jdk-25\bin\java.exe" (
 echo Using JAVA_HOME=%JAVA_HOME%
 echo.
 
-REM --- Backend (Spring Boot) ---
-REM Use PowerShell for robust path handling (OneDrive paths sometimes break cmd pushd/cd).
-start "SmartJournal Backend" powershell -NoExit -ExecutionPolicy Bypass -Command "$env:JAVA_HOME='%JAVA_HOME%'; Set-Location -LiteralPath '%ROOT%'; Write-Host ('JAVA_HOME=' + $env:JAVA_HOME); .\mvnw.cmd spring-boot:run"
+REM --- Backend (Console Java app) ---
+start "SmartJournal Backend" powershell -NoExit -ExecutionPolicy Bypass -Command "$env:JAVA_HOME='%JAVA_HOME%'; Set-Location -LiteralPath '%ROOT%'; Write-Host ('JAVA_HOME=' + $env:JAVA_HOME); .\mvnw.cmd -q -DskipTests package; if ($LASTEXITCODE -ne 0) { Write-Host 'Build failed' -ForegroundColor Red; exit 1 }; java -jar .\target\FOP_ASSIGNMENT-1.0-SNAPSHOT.jar"
 
 REM --- Frontend (Vite) ---
 start "SmartJournal Frontend" powershell -NoExit -ExecutionPolicy Bypass -Command "Set-Location -LiteralPath '%ROOT%web'; if (!(Test-Path node_modules)) { npm install }; npm run dev"
@@ -39,7 +38,6 @@ start "SmartJournal Frontend" powershell -NoExit -ExecutionPolicy Bypass -Comman
 echo.
 echo Started both servers in separate windows.
 echo Frontend: http://localhost:5173
-echo Backend:   http://localhost:8080
 echo.
 echo You can close either window to stop that server.
 echo.
