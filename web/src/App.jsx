@@ -3,6 +3,7 @@ import Sidebar from './components/Sidebar';
 import TopBar from './components/TopBar';
 import Editor from './components/Editor';
 import Login from './components/Login';
+import WeeklySummary from './components/WeeklySummary';
 import { getEntries, saveEntry, createNewEntry } from './storage';
 
 function App() {
@@ -11,6 +12,7 @@ function App() {
   const [selectedEntry, setSelectedEntry] = useState(null);
   const [currentEntry, setCurrentEntry] = useState(null);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [activeView, setActiveView] = useState('journal'); // 'journal' | 'weekly'
 
   // Check for existing session on mount
   useEffect(() => {
@@ -63,6 +65,7 @@ function App() {
     setCurrentEntry(newEntry);
     setSelectedEntry(newEntry);
     setHasUnsavedChanges(false);
+    setActiveView('journal');
   };
 
   const handleSelectEntry = (entry) => {
@@ -73,6 +76,7 @@ function App() {
     setSelectedEntry(entry);
     setCurrentEntry({ ...entry });
     setHasUnsavedChanges(false);
+    setActiveView('journal');
   };
 
   const handleEntryChange = (updatedEntry) => {
@@ -104,6 +108,19 @@ function App() {
       console.error('Failed to save entry:', error);
       alert('Failed to save entry. Please try again.');
     }
+  };
+
+  const handleOpenWeeklySummary = () => {
+    if (hasUnsavedChanges) {
+      const confirm = window.confirm('You have unsaved changes. Do you want to discard them and view Weekly Summary?');
+      if (!confirm) return;
+    }
+    setHasUnsavedChanges(false);
+    setActiveView('weekly');
+  };
+
+  const handleCloseWeeklySummary = () => {
+    setActiveView('journal');
   };
 
   // Auto-save on Ctrl+S
@@ -142,12 +159,18 @@ function App() {
           onSave={handleSave}
           onLogout={handleLogout}
           hasUnsavedChanges={hasUnsavedChanges}
+          onWeeklySummary={handleOpenWeeklySummary}
+          activeView={activeView}
         />
 
-        <Editor
-          entry={currentEntry}
-          onChange={handleEntryChange}
-        />
+        {activeView === 'weekly' ? (
+          <WeeklySummary entries={entries} onClose={handleCloseWeeklySummary} />
+        ) : (
+          <Editor
+            entry={currentEntry}
+            onChange={handleEntryChange}
+          />
+        )}
       </div>
     </div>
   );

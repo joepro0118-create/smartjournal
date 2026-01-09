@@ -17,15 +17,24 @@ export const getEntries = async () => {
     const backendEntries = await journalAPI.getEntries(user.email);
 
     // Convert backend format to frontend format
-    return backendEntries.map(entry => ({
-      id: entry.id,
-      title: entry.date || 'Untitled Entry',
-      content: entry.content || '',
-      date: entry.date ? new Date(entry.date).toISOString() : new Date().toISOString(),
-      preview: generatePreview(entry.content),
-      weather: entry.weather || '',
-      mood: entry.mood || ''
-    }));
+    return backendEntries.map(entry => {
+      const dateIso = entry.date
+        ? new Date(entry.date).toISOString()
+        : new Date().toISOString();
+
+      return {
+        id: entry.id,
+        // Prefer explicit title from backend; fall back to old behavior for legacy entries
+        title: (entry.title && String(entry.title).trim())
+          ? String(entry.title)
+          : (entry.date || 'Untitled Entry'),
+        content: entry.content || '',
+        date: dateIso,
+        preview: generatePreview(entry.content),
+        weather: entry.weather || '',
+        mood: entry.mood || ''
+      };
+    });
   } catch (error) {
     console.error('Failed to load entries from backend:', error);
     // Fallback to localStorage
@@ -44,8 +53,10 @@ export const saveEntry = async (entry) => {
     // Extract date from entry (format: YYYY-MM-DD)
     const date = new Date(entry.date).toISOString().split('T')[0];
 
+    const title = (entry.title || '').toString().trim();
+
     // Save to backend
-    const response = await journalAPI.saveEntry(user.email, date, entry.content);
+    const response = await journalAPI.saveEntry(user.email, date, entry.content, title);
 
     // Update the entry with weather and mood from backend
     entry.weather = response.weather;

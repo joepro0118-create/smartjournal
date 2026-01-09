@@ -1,5 +1,72 @@
 # 🚀 QUICK START - Run Backend from IntelliJ IDEA
 
+## ✅ Why you saw: "Unsupported class file major version 69"
+
+That error means **something is trying to run/read Java 25 bytecode**.
+
+- **Major version 69 = Java 25**
+- Spring Boot **does not require Java 25**.
+- If your project is compiled/running with Java 25, some tools/plugins can fail.
+
+### Spring Boot 3.2 supports which Java?
+- **Minimum:** Java **17**
+- **Recommended (best compatibility):** Java **21 (LTS)**
+
+So the fix is: **use JDK 21 for Maven + IntelliJ + Spring Boot**.
+
+---
+
+## 1) What to change in `pom.xml`
+
+Set the Java version to 21:
+
+```xml
+<properties>
+  <java.version>21</java.version>
+</properties>
+```
+
+(Already updated in this project.)
+
+---
+
+## 2) Configure `JAVA_HOME` so Maven uses the correct JDK
+
+### Option A (Recommended): Set JAVA_HOME in Windows (permanent)
+1. Open **Start Menu** → search **"Edit the system environment variables"**
+2. Click **Environment Variables**
+3. Under **User variables** click **New** (or Edit if it exists)
+4. Set:
+   - Variable name: `JAVA_HOME`
+   - Variable value: `C:\Program Files\Java\jdk-21`
+5. Edit `Path` and add:
+   - `%JAVA_HOME%\bin`
+6. Close terminals and re-open them.
+
+### Option B: Set JAVA_HOME only for one terminal session (temporary)
+In PowerShell:
+
+```powershell
+$env:JAVA_HOME = "C:\Program Files\Java\jdk-21"
+$env:Path = "$env:JAVA_HOME\bin;" + $env:Path
+java -version
+```
+
+---
+
+## 3) IntelliJ setup (so it uses Java 21)
+
+1. IntelliJ → **File → Project Structure**
+2. Set:
+   - **Project SDK:** Java 21
+   - **Project language level:** 21
+3. IntelliJ → Settings → **Build Tools → Maven**
+4. Set:
+   - **JDK for importer:** Java 21
+   - **JDK:** Java 21
+
+---
+
 ## The Easiest Way (Recommended)
 
 Since Maven/Java setup can be tricky from command line, here's the easiest way to get your backend running:
@@ -90,7 +157,7 @@ npm run dev
   Then update `web/src/api.js` to use 8081
 
 ### Build fails?
-- Check Java version: File → Project Structure → Project SDK (should be Java 17+)
+- Check Java version: File → Project Structure → Project SDK (**Java 21 recommended**)
 - Try: Maven panel (right side) → Lifecycle → clean → install
 
 ---
@@ -114,15 +181,11 @@ npm run dev
 
 ## 📝 Quick Recap
 
-1. **Open project in IntelliJ IDEA**
-2. **Import Maven dependencies** (auto-prompt)
-3. **Right-click `JournalApplication.java` → Run**
-4. **Wait for "Started JournalApplication" message**
-5. **Open http://localhost:5173 in browser**
-6. **Register & Login**
-7. **Start journaling!** 🎉
-
----
-
-That's it! Your full-stack Smart Journal is now running! 📔✨
-
+1. **Install Java 21 (LTS) and set IntelliJ to use it**
+2. **Open project in IntelliJ IDEA**
+3. **Import Maven dependencies** (auto-prompt)
+4. **Right-click `JournalApplication.java` → Run**
+5. **Wait for "Started JournalApplication" message**
+6. **Open http://localhost:5173 in browser**
+7. **Register & Login**
+8. **Start journaling!**

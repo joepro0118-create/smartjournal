@@ -11,20 +11,28 @@ pushd "%~dp0" || (
   exit /b 1
 )
 
-REM Always prefer the known installed JDK path (avoids trailing-space JAVA_HOME coming from the environment)
-if exist "C:\Program Files\Java\jdk-25\bin\java.exe" (
-  set "JAVA_HOME=C:\Program Files\Java\jdk-25"
+REM --- Choose JDK 21 ---
+REM Prefer explicit JAVA_HOME if already set; otherwise use common install locations.
+if not defined JAVA_HOME (
+  if exist "C:\Program Files\Java\jdk-21\bin\java.exe" (
+    set "JAVA_HOME=C:\Program Files\Java\jdk-21"
+  ) else (
+    for /d %%D in ("C:\Program Files\Java\jdk-21*") do (
+      if exist "%%~fD\bin\java.exe" set "JAVA_HOME=%%~fD"
+    )
+  )
 )
 
 REM Trim surrounding quotes and spaces in JAVA_HOME
-if not "%JAVA_HOME%"=="" (
+if defined JAVA_HOME (
   set "JAVA_HOME=%JAVA_HOME:"=%"
   for /f "tokens=*" %%A in ("%JAVA_HOME%") do set "JAVA_HOME=%%A"
 )
 
-if "%JAVA_HOME%"=="" (
-    echo Error: JAVA_HOME not found in your environment.
-    echo Please install a JDK and set JAVA_HOME.
+if not defined JAVA_HOME (
+    echo Error: JAVA_HOME not found and JDK 21 was not detected.
+    echo Please set JAVA_HOME to your JDK 21 folder, e.g.
+    echo   C:\Program Files\Java\jdk-21
     popd
     pause
     exit /b 1
@@ -33,7 +41,7 @@ if "%JAVA_HOME%"=="" (
 if not exist "%JAVA_HOME%\bin\java.exe" (
     echo Error: JAVA_HOME is set but java.exe was not found:
     echo   JAVA_HOME=%JAVA_HOME%
-    echo Fix it to a real JDK folder, e.g. C:\Program Files\Java\jdk-25
+    echo Fix it to a real JDK 21 folder.
     popd
     pause
     exit /b 1

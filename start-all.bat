@@ -7,23 +7,43 @@ echo.
 REM Resolve project root (folder containing this .bat)
 set "ROOT=%~dp0"
 
-REM --- Ensure JAVA_HOME is available for Maven Wrapper ---
-REM mvnw.cmd requires JAVA_HOME.
+REM --- Choose JDK 21 for Maven/Java ---
+REM Prefer explicit JAVA_HOME if already set correctly.
+REM Otherwise try common JDK 21 install locations.
+
 if not defined JAVA_HOME (
-  for /f "tokens=2 delims==" %%A in ('java -XshowSettings:properties -version 2^>^&1 ^| findstr /c:"java.home"') do set "JAVA_HOME=%%A"
+  if exist "C:\Program Files\Java\jdk-21\bin\java.exe" (
+    set "JAVA_HOME=C:\Program Files\Java\jdk-21"
+  ) else (
+    for /d %%D in ("C:\Program Files\Java\jdk-21*") do (
+      if exist "%%~fD\bin\java.exe" set "JAVA_HOME=%%~fD"
+    )
+  )
 )
 
 REM Trim leading spaces if present
 if defined JAVA_HOME (
+  set "JAVA_HOME=%JAVA_HOME:"=%"
   for /f "tokens=* delims= " %%A in ("%JAVA_HOME%") do set "JAVA_HOME=%%A"
 )
 
-REM If java.home points to ...\jre, go up one level
-if defined JAVA_HOME if /i "%JAVA_HOME:~-4%"=="\jre" set "JAVA_HOME=%JAVA_HOME:~0,-4%"
+REM Validate JAVA_HOME
+if not defined JAVA_HOME (
+  echo Error: JAVA_HOME is not set and JDK 21 was not found under "C:\Program Files\Java".
+  echo Please install JDK 21 and set JAVA_HOME to something like:
+  echo   C:\Program Files\Java\jdk-21
+  echo.
+  pause
+  exit /b 1
+)
 
-REM Fallback (your machine's known JDK location)
-if not defined JAVA_HOME if exist "C:\Program Files\Java\jdk-25\bin\java.exe" (
-  set "JAVA_HOME=C:\Program Files\Java\jdk-25"
+if not exist "%JAVA_HOME%\bin\java.exe" (
+  echo Error: JAVA_HOME is set but java.exe was not found:
+  echo   JAVA_HOME=%JAVA_HOME%
+  echo Fix JAVA_HOME to a real JDK 21 folder.
+  echo.
+  pause
+  exit /b 1
 )
 
 echo Using JAVA_HOME=%JAVA_HOME%

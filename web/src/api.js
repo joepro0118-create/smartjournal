@@ -62,13 +62,13 @@ export const journalAPI = {
     return response.json();
   },
 
-  async saveEntry(email, date, content) {
+  async saveEntry(email, date, content, title) {
     const response = await fetch(`${API_BASE_URL}/journal/save`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ email, date, content }),
+      body: JSON.stringify({ email, date, content, title }),
     });
 
     if (!response.ok) {
