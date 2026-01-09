@@ -5,6 +5,7 @@ import Editor from './components/Editor';
 import Login from './components/Login';
 import WeeklySummary from './components/WeeklySummary';
 import { getEntries, saveEntry, createNewEntry } from './storage';
+import { applyTheme, getInitialTheme, setStoredTheme, toggleThemeValue } from './theme';
 
 function App() {
   const [currentUser, setCurrentUser] = useState(null);
@@ -13,6 +14,13 @@ function App() {
   const [currentEntry, setCurrentEntry] = useState(null);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [activeView, setActiveView] = useState('journal'); // 'journal' | 'weekly'
+  const [theme, setTheme] = useState(getInitialTheme()); // 'dark' | 'light'
+
+  // Apply theme on mount + when it changes
+  useEffect(() => {
+    applyTheme(theme);
+    setStoredTheme(theme);
+  }, [theme]);
 
   // Check for existing session on mount
   useEffect(() => {
@@ -123,6 +131,10 @@ function App() {
     setActiveView('journal');
   };
 
+  const handleToggleTheme = () => {
+    setTheme(prev => toggleThemeValue(prev));
+  };
+
   // Auto-save on Ctrl+S
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -161,6 +173,8 @@ function App() {
           hasUnsavedChanges={hasUnsavedChanges}
           onWeeklySummary={handleOpenWeeklySummary}
           activeView={activeView}
+          theme={theme}
+          onToggleTheme={handleToggleTheme}
         />
 
         {activeView === 'weekly' ? (

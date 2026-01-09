@@ -2,6 +2,24 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  /* Dark theme (default) */
+  --sj-bg: #1a1a2e;
+  --sj-surface: #16213e;
+  --sj-lighter: #0f3460;
+  --sj-text: #e9e9f0;
+  --sj-muted: #b4b4c8;
+}
+
+/* Light theme overrides */
+.theme-light {
+  --sj-bg: #f6f7fb;
+  --sj-surface: #ffffff;
+  --sj-lighter: #e6eaf5;
+  --sj-text: #111827;
+  --sj-muted: #4b5563;
+}
+
 body {
   margin: 0;
   padding: 0;
@@ -10,11 +28,10 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #1a1a2e;
-  color: #e9e9f0;
+  background-color: var(--sj-bg);
+  color: var(--sj-text);
 }
 
 * {
   box-sizing: border-box;
 }
-

@@ -8,20 +8,19 @@ export default {
     extend: {
       colors: {
         dark: {
-          bg: '#1a1a2e',
-          surface: '#16213e',
-          lighter: '#0f3460',
+          bg: 'var(--sj-bg)',
+          surface: 'var(--sj-surface)',
+          lighter: 'var(--sj-lighter)',
           accent: '#533483',
           purple: '#7c3aed',
           blue: '#3b82f6',
         },
         light: {
-          text: '#e9e9f0',
-          muted: '#b4b4c8',
+          text: 'var(--sj-text)',
+          muted: 'var(--sj-muted)',
         }
       }
     },
   },
   plugins: [],
 }
-
