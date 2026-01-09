@@ -89,7 +89,16 @@ function App() {
         new Date(b.date) - new Date(a.date)
       );
       setEntries(sorted);
-      setSelectedEntry(currentEntry);
+
+      // Re-select the latest saved version (includes mood/weather returned by backend)
+      const saved = sorted.find(e => e.id === currentEntry.id) || sorted.find(e => e.date === currentEntry.date);
+      if (saved) {
+        setSelectedEntry(saved);
+        setCurrentEntry({ ...saved });
+      } else {
+        setSelectedEntry(currentEntry);
+      }
+
       setHasUnsavedChanges(false);
     } catch (error) {
       console.error('Failed to save entry:', error);

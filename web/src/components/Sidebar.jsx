@@ -24,27 +24,48 @@ const Sidebar = ({ entries, selectedEntry, onSelectEntry, onNewEntry }) => {
           </div>
         ) : (
           <div className="p-2">
-            {entries.map((entry) => (
-              <div
-                key={entry.id}
-                onClick={() => onSelectEntry(entry)}
-                className={`p-3 mb-2 rounded-lg cursor-pointer transition-all duration-200 ${
-                  selectedEntry?.id === entry.id
-                    ? 'bg-dark-accent border border-dark-purple shadow-lg'
-                    : 'bg-dark-bg hover:bg-dark-lighter border border-transparent'
-                }`}
-              >
-                <h3 className="text-light-text font-medium mb-1 truncate">
-                  {entry.title || 'Untitled'}
-                </h3>
-                <p className="text-xs text-light-muted mb-2">
-                  {formatShortDate(entry.date)}
-                </p>
-                <p className="text-sm text-light-muted line-clamp-2">
-                  {generatePreview(entry.content, 80)}
-                </p>
-              </div>
-            ))}
+            {entries.map((entry) => {
+              const mood = (entry.mood || '').trim();
+              const weather = (entry.weather || '').trim();
+
+              return (
+                <div
+                  key={entry.id}
+                  onClick={() => onSelectEntry(entry)}
+                  className={`p-3 mb-2 rounded-lg cursor-pointer transition-all duration-200 ${
+                    selectedEntry?.id === entry.id
+                      ? 'bg-dark-accent border border-dark-purple shadow-lg'
+                      : 'bg-dark-bg hover:bg-dark-lighter border border-transparent'
+                  }`}
+                >
+                  <h3 className="text-light-text font-medium mb-1 truncate">
+                    {entry.title || 'Untitled'}
+                  </h3>
+                  <p className="text-xs text-light-muted mb-2">
+                    {formatShortDate(entry.date)}
+                  </p>
+
+                  {(weather || mood) && (
+                    <div className="flex flex-wrap gap-1 mb-2">
+                      {weather && (
+                        <span className="text-[10px] px-2 py-0.5 rounded-full border border-dark-lighter bg-dark-surface text-light-text/90">
+                          {weather}
+                        </span>
+                      )}
+                      {mood && (
+                        <span className="text-[10px] px-2 py-0.5 rounded-full border border-dark-lighter bg-dark-surface text-light-text/90">
+                          {mood}
+                        </span>
+                      )}
+                    </div>
+                  )}
+
+                  <p className="text-sm text-light-muted line-clamp-2">
+                    {generatePreview(entry.content, 80)}
+                  </p>
+                </div>
+              );
+            })}
           </div>
         )}
       </div>

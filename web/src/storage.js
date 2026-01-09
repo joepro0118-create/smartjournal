@@ -84,8 +84,8 @@ export const saveEntry = async (entry) => {
   }
 };
 
-export const deleteEntry = (id) => {
-  const entries = getEntries();
+export const deleteEntry = async (id) => {
+  const entries = await getEntries();
   const filtered = entries.filter(e => e.id !== id);
   localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
   return filtered;
@@ -97,7 +97,9 @@ export const createNewEntry = () => {
     title: 'Untitled Entry',
     content: '',
     date: new Date().toISOString(),
-    preview: ''
+    preview: '',
+    weather: '',
+    mood: ''
   };
 };
 
@@ -129,4 +131,3 @@ export const generatePreview = (content, maxLength = 100) => {
     ? stripped.substring(0, maxLength) + '...'
     : stripped;
 };
-
