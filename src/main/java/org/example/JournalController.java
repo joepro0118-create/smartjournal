@@ -3,12 +3,8 @@ package org.example;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 @RestController
@@ -22,51 +18,81 @@ public class JournalController {
         new File(JOURNAL_DIR).mkdirs();
     }
 
+    private static String normalizeEmail(String email) {
+        return email == null ? "" : email.trim().toLowerCase(Locale.ROOT);
+    }
+
     @GetMapping("/entries")
     public ResponseEntity<?> getEntries(@RequestParam String email) {
+        String normalizedEmail = normalizeEmail(email);
         List<Map<String, Object>> entries = new ArrayList<>();
+
         File journalDir = new File(JOURNAL_DIR);
         File[] files = journalDir.listFiles((dir, name) ->
-            name.startsWith(email + "_") && name.endsWith(".txt")
+            name.toLowerCase(Locale.ROOT).startsWith(normalizedEmail + "_") && name.toLowerCase(Locale.ROOT).endsWith(".txt")
         );
 
         if (files != null) {
             for (File file : files) {
-                try (Scanner scanner = new Scanner(file)) {
+                try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8))) {
                     String date = "";
-                    String content = "";
                     String weather = "";
                     String mood = "";
 
-                    while (scanner.hasNextLine()) {
-                        String line = scanner.nextLine().trim();
-                        if (line.toLowerCase().startsWith("date")) {
+                    StringBuilder content = new StringBuilder();
+                    boolean inContent = false;
+
+                    String raw;
+                    while ((raw = reader.readLine()) != null) {
+                        String line = raw.trim();
+                        String lower = line.toLowerCase(Locale.ROOT);
+
+                        if (lower.startsWith("date")) {
+                            inContent = false;
                             int idx = line.indexOf(':');
                             if (idx >= 0) date = line.substring(idx + 1).trim();
-                        } else if (line.toLowerCase().startsWith("content")) {
-                            int idx = line.indexOf(':');
-                            if (idx >= 0) content = line.substring(idx + 1).trim();
-                        } else if (line.toLowerCase().startsWith("weather")) {
+                        } else if (lower.startsWith("content")) {
+                            inContent = true;
+                            int idx = raw.indexOf(':');
+                            if (idx >= 0) {
+                                content.append(raw.substring(idx + 1).trim());
+                            }
+                        } else if (lower.startsWith("weather")) {
+                            inContent = false;
                             int idx = line.indexOf(':');
                             if (idx >= 0) weather = line.substring(idx + 1).trim();
-                        } else if (line.toLowerCase().startsWith("mood")) {
+                        } else if (lower.startsWith("mood")) {
+                            inContent = false;
                             int idx = line.indexOf(':');
                             if (idx >= 0) mood = line.substring(idx + 1).trim();
+                        } else if (inContent) {
+                            // Multi-line journal content
+                            if (!content.isEmpty()) content.append("\n");
+                            content.append(raw);
                         }
+                        
                     }
 
                     Map<String, Object> entry = new HashMap<>();
                     entry.put("id", file.getName().replace(".txt", ""));
                     entry.put("date", date);
-                    entry.put("content", content);
+                    entry.put("content", content.toString());
                     entry.put("weather", weather);
                     entry.put("mood", mood);
                     entries.add(entry);
+
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
         }
+
+        // Sort by date descending if possible
+        entries.sort((a, b) -> {
+            String da = Objects.toString(a.get("date"), "");
+            String db = Objects.toString(b.get("date"), "");
+            return db.compareTo(da);
+        });
 
         return ResponseEntity.ok(entries);
     }
@@ -74,13 +100,19 @@ public class JournalController {
     @PostMapping("/save")
     public ResponseEntity<?> saveEntry(@RequestBody JournalEntry entry) {
         try {
-            String moodData = API.getMood(entry.getContent());
+            String normalizedEmail = normalizeEmail(entry.getEmail());
+            entry.setEmail(normalizedEmail);
+
+            String content = entry.getContent() == null ? "" : entry.getContent();
+
+            // Always return *some* value
+            String moodData = API.getMood(content);
             String weatherData = API.getWeather();
 
-            String filename = JOURNAL_DIR + entry.getEmail() + "_" + entry.getDate() + ".txt";
-            try (PrintWriter writer = new PrintWriter(new FileWriter(filename, false))) {
+            String filename = JOURNAL_DIR + normalizedEmail + "_" + entry.getDate() + ".txt";
+            try (PrintWriter writer = new PrintWriter(new OutputStreamWriter(new FileOutputStream(filename, false), StandardCharsets.UTF_8))) {
                 writer.println("Date : " + entry.getDate());
-                writer.println("Content : " + entry.getContent());
+                writer.println("Content : " + content);
                 writer.println("Weather : " + weatherData);
                 writer.println("Mood : " + moodData);
             }
@@ -90,6 +122,7 @@ public class JournalController {
             response.put("weather", weatherData);
             response.put("mood", moodData);
             return ResponseEntity.ok(response);
+
         } catch (Exception e) {
             Map<String, String> error = new HashMap<>();
             error.put("error", "Failed to save journal: " + e.getMessage());
@@ -103,6 +136,8 @@ class JournalEntry {
     private String date;
     private String content;
 
+    public JournalEntry() {}
+
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
     public String getDate() { return date; }
@@ -110,4 +145,3 @@ class JournalEntry {
     public String getContent() { return content; }
     public void setContent(String content) { this.content = content; }
 }
-

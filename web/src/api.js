@@ -1,6 +1,7 @@
 // API service for connecting to Java backend
 
-const API_BASE_URL = 'http://localhost:8080/api';
+// Use same-origin + Vite proxy (see vite.config.js)
+const API_BASE_URL = '/api';
 
 export const authAPI = {
   async login(email, password) {
@@ -13,8 +14,14 @@ export const authAPI = {
     });
 
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || 'Login failed');
+      let message = 'Login failed';
+      try {
+        const error = await response.json();
+        message = error.error || message;
+      } catch (_) {
+        // ignore JSON parse errors
+      }
+      throw new Error(message);
     }
 
     return response.json();
@@ -30,8 +37,14 @@ export const authAPI = {
     });
 
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || 'Registration failed');
+      let message = 'Registration failed';
+      try {
+        const error = await response.json();
+        message = error.error || message;
+      } catch (_) {
+        // ignore
+      }
+      throw new Error(message);
     }
 
     return response.json();
@@ -59,11 +72,16 @@ export const journalAPI = {
     });
 
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || 'Failed to save entry');
+      let message = 'Failed to save entry';
+      try {
+        const error = await response.json();
+        message = error.error || message;
+      } catch (_) {
+        // ignore
+      }
+      throw new Error(message);
     }
 
     return response.json();
   },
 };
-

@@ -54,6 +54,9 @@ class LoginRequest {
     private String email;
     private String password;
 
+    // Default constructor required for JSON deserialization
+    public LoginRequest() {}
+
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
     public String getPassword() { return password; }
@@ -64,6 +67,9 @@ class RegisterRequest {
     private String email;
     private String displayName;
     private String password;
+
+    // Default constructor required for JSON deserialization
+    public RegisterRequest() {}
 
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
