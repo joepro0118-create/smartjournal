@@ -18,13 +18,42 @@ const TopBar = ({
   const mood = (currentEntry?.mood || '').trim();
   const weather = (currentEntry?.weather || '').trim();
 
+  const isLight = theme === 'light';
+
   const moodClasses = (() => {
     const m = mood.toLowerCase();
-    if (m.includes('neg')) return 'bg-red-900/30 border-red-800/60 text-red-200';
-    if (m.includes('pos')) return 'bg-emerald-900/30 border-emerald-800/60 text-emerald-200';
-    if (m) return 'bg-slate-800/40 border-slate-700/60 text-slate-200';
-    return 'bg-dark-lighter text-light-muted border-dark-lighter';
+
+    // Light mode: solid, high-contrast pills
+    // Dark mode: keep the original transparent look
+    if (m.includes('neg')) {
+      return isLight
+        ? 'bg-red-600 border-red-700 text-white'
+        : 'bg-red-900/30 border-red-800/60 text-red-200';
+    }
+    if (m.includes('pos')) {
+      return isLight
+        ? 'bg-emerald-600 border-emerald-700 text-white'
+        : 'bg-emerald-900/30 border-emerald-800/60 text-emerald-200';
+    }
+    if (m.includes('neutral')) {
+      return isLight
+        ? 'bg-slate-500 border-slate-600 text-white'
+        : 'bg-slate-800/40 border-slate-700/60 text-slate-200';
+    }
+    if (m) {
+      return isLight
+        ? 'bg-indigo-600 border-indigo-700 text-white'
+        : 'bg-slate-800/40 border-slate-700/60 text-slate-200';
+    }
+
+    return isLight
+      ? 'bg-slate-200 text-slate-800 border-slate-300'
+      : 'bg-dark-lighter text-light-muted border-dark-lighter';
   })();
+
+  const logoutClasses = isLight
+    ? 'bg-red-600 hover:bg-red-700 text-white border-red-700'
+    : 'bg-red-900/30 hover:bg-red-900/50 text-red-300 hover:text-red-200 border-red-800/50';
 
   const canSave = activeView !== 'weekly' && hasUnsavedChanges;
 
@@ -36,8 +65,6 @@ const TopBar = ({
     if (hour >= 17 && hour < 21) return 'Good evening';
     return 'Good night';
   })();
-
-  const isLight = theme === 'light';
 
   return (
     <div className="bg-dark-surface border-b border-dark-lighter px-6 py-4">
@@ -126,7 +153,7 @@ const TopBar = ({
 
           <button
             onClick={onLogout}
-            className="px-4 py-2 rounded-lg font-medium bg-red-900/30 hover:bg-red-900/50 text-red-300 hover:text-red-200 transition-all duration-200 border border-red-800/50"
+            className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 border ${logoutClasses}`}
           >
             Logout
           </button>

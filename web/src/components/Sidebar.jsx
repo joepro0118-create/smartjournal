@@ -6,10 +6,12 @@ const Sidebar = ({ entries, selectedEntry, onSelectEntry, onNewEntry }) => {
     <div className="w-80 bg-dark-surface border-r border-dark-lighter flex flex-col h-screen">
       {/* Sidebar Header */}
       <div className="p-4 border-b border-dark-lighter">
-        <h2 className="text-lg font-semibold text-light-text mb-3">Your Journals</h2>
+        <h2 className="text-lg font-semibold text-light-text mb-3 theme-light:text-slate-900">
+          Your Journals
+        </h2>
         <button
           onClick={onNewEntry}
-          className="w-full bg-dark-purple hover:bg-purple-600 text-light-text py-2 px-4 rounded-lg transition-all duration-200 font-medium shadow-lg hover:shadow-purple-500/20"
+          className="w-full bg-dark-purple hover:bg-purple-600 text-light-text theme-light:text-white py-2 px-4 rounded-lg transition-all duration-200 font-medium shadow-lg hover:shadow-purple-500/20"
         >
           + New Entry
         </button>
@@ -18,7 +20,7 @@ const Sidebar = ({ entries, selectedEntry, onSelectEntry, onNewEntry }) => {
       {/* Entries List */}
       <div className="flex-1 overflow-y-auto">
         {entries.length === 0 ? (
-          <div className="p-4 text-center text-light-muted">
+          <div className="p-4 text-center text-light-muted theme-light:text-slate-600">
             <p className="mb-2">No entries yet</p>
             <p className="text-sm">Start writing your first journal!</p>
           </div>
@@ -38,29 +40,33 @@ const Sidebar = ({ entries, selectedEntry, onSelectEntry, onNewEntry }) => {
                       : 'bg-dark-bg hover:bg-dark-lighter border border-transparent'
                   }`}
                 >
-                  <h3 className="text-light-text font-medium mb-1 truncate">
+                  {/* Title */}
+                  <h3 className="text-light-text theme-light:text-slate-900 font-semibold mb-1 truncate">
                     {entry.title || 'Untitled'}
                   </h3>
-                  <p className="text-xs text-light-muted mb-2">
+
+                  {/* Date */}
+                  <p className="text-xs text-light-muted theme-light:text-slate-700 mb-2">
                     {formatShortDate(entry.date)}
                   </p>
 
                   {(weather || mood) && (
                     <div className="flex flex-wrap gap-1 mb-2">
                       {weather && (
-                        <span className="text-[10px] px-2 py-0.5 rounded-full border border-dark-lighter bg-dark-surface text-light-text/90">
+                        <span className="text-[10px] px-2 py-0.5 rounded-full border border-dark-lighter bg-dark-surface text-light-text/90 theme-light:border-slate-300 theme-light:bg-slate-100 theme-light:text-slate-800">
                           {weather}
                         </span>
                       )}
                       {mood && (
-                        <span className="text-[10px] px-2 py-0.5 rounded-full border border-dark-lighter bg-dark-surface text-light-text/90">
+                        <span className="text-[10px] px-2 py-0.5 rounded-full border border-dark-lighter bg-dark-surface text-light-text/90 theme-light:border-slate-300 theme-light:bg-slate-100 theme-light:text-slate-800">
                           {mood}
                         </span>
                       )}
                     </div>
                   )}
 
-                  <p className="text-sm text-light-muted line-clamp-2">
+                  {/* Preview */}
+                  <p className="text-sm text-light-muted theme-light:text-slate-600 line-clamp-2">
                     {generatePreview(entry.content, 80)}
                   </p>
                 </div>

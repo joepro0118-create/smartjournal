@@ -9,24 +9,38 @@ const normalizeMood = (mood) => {
   return 'other';
 };
 
-const badgeClasses = (key) => {
+const badgeClasses = (key, isLight) => {
+  // Light mode: solid, readable colors.
+  // Dark mode: revert to previous transparent styling.
   switch (key) {
     case 'positive':
-      return 'bg-emerald-900/30 border-emerald-800/60 text-emerald-200';
+      return isLight
+        ? 'bg-emerald-600 border-emerald-700 text-white'
+        : 'bg-emerald-900/30 border-emerald-800/60 text-emerald-200';
     case 'negative':
-      return 'bg-red-900/30 border-red-800/60 text-red-200';
+      return isLight
+        ? 'bg-red-600 border-red-700 text-white'
+        : 'bg-red-900/30 border-red-800/60 text-red-200';
     case 'neutral':
-      return 'bg-slate-800/40 border-slate-700/60 text-slate-200';
+      return isLight
+        ? 'bg-slate-500 border-slate-600 text-white'
+        : 'bg-slate-800/40 border-slate-700/60 text-slate-200';
     case 'unknown':
-      return 'bg-dark-lighter border-dark-lighter text-light-muted';
+      return isLight
+        ? 'bg-slate-200 border-slate-300 text-slate-800'
+        : 'bg-dark-lighter border-dark-lighter text-light-muted';
     default:
-      return 'bg-indigo-900/20 border-indigo-800/50 text-indigo-200';
+      return isLight
+        ? 'bg-indigo-600 border-indigo-700 text-white'
+        : 'bg-indigo-900/20 border-indigo-800/50 text-indigo-200';
   }
 };
 
 const startOfDay = (d) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
 
-const WeeklySummary = ({ entries, onClose }) => {
+const WeeklySummary = ({ entries, onClose, theme }) => {
+  const isLight = theme === 'light';
+
   const summary = useMemo(() => {
     const now = new Date();
     const start = startOfDay(new Date(now));
@@ -81,7 +95,7 @@ const WeeklySummary = ({ entries, onClose }) => {
             <h3 className="text-lg font-semibold text-light-text mb-3">Mood breakdown</h3>
             <div className="flex flex-wrap gap-2">
               {Object.entries(summary.counts).map(([key, count]) => (
-                <span key={key} className={`text-xs px-3 py-1 rounded-full border ${badgeClasses(key)}`}>
+                <span key={key} className={`text-xs px-3 py-1 rounded-full border ${badgeClasses(key, isLight)}`}>
                   {key.toUpperCase()}: {count}
                 </span>
               ))}
@@ -106,7 +120,7 @@ const WeeklySummary = ({ entries, onClose }) => {
                     </div>
                     <div className="mt-2 flex flex-wrap gap-2">
                       {day.list.slice(0, 4).map(e => (
-                        <span key={e.id} className={`text-[10px] px-2 py-0.5 rounded-full border ${badgeClasses(e.moodKey)}`}>
+                        <span key={e.id} className={`text-[10px] px-2 py-0.5 rounded-full border ${badgeClasses(e.moodKey, isLight)}`}>
                           {(e.title || 'Untitled').toString().trim() || 'Untitled'}
                         </span>
                       ))}
@@ -128,4 +142,3 @@ const WeeklySummary = ({ entries, onClose }) => {
 };
 
 export default WeeklySummary;
-

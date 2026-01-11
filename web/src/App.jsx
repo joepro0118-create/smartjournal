@@ -178,7 +178,7 @@ function App() {
         />
 
         {activeView === 'weekly' ? (
-          <WeeklySummary entries={entries} onClose={handleCloseWeeklySummary} />
+          <WeeklySummary entries={entries} onClose={handleCloseWeeklySummary} theme={theme} />
         ) : (
           <Editor
             entry={currentEntry}
