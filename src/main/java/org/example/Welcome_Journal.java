@@ -13,7 +13,8 @@ public class Welcome_Journal {
     private final Scanner sc = new Scanner(System.in);
     private static final String JOURNAL = "journals/";
 
-    // Optional callback for returning to SMART JOURNAL FEATURES menu
+    // Callback for returning to SMART JOURNAL FEATURES menu
+    // Tells the Main class the user wants to go back to the previous menu
     private final Runnable onBackToFeatures;
 
     // Keep old constructor for compatibility
@@ -28,12 +29,15 @@ public class Welcome_Journal {
     // Preferred constructor
     public Welcome_Journal(String userEmail, String displayName, Runnable onBackToFeatures) {
         this.userEmail = userEmail;
+        // If name is missing, use email as the name
         this.displayName = (displayName == null || displayName.trim().isEmpty()) ? userEmail : displayName.trim();
         this.onBackToFeatures = onBackToFeatures;
+        // Create the "journals" folder if it doesn't exist yet
         new File(JOURNAL).mkdir();
     }
 
     public void displayMenu() {
+        // Calculate Greeting (Morning/Afternoon/Evening)
         LocalTime now = LocalTime.now();
         String greeting;
 
@@ -46,8 +50,7 @@ public class Welcome_Journal {
             greeting = "Good Evening";
         }
 
-
-
+        // Display Date & Time
         LocalDateTime today = LocalDateTime.now();
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
@@ -55,11 +58,13 @@ public class Welcome_Journal {
 
         System.out.println(greeting + ", " + displayName);
 
+        // Show Options
         System.out.println("0. Terminate the program everywhere anytime");
         System.out.println("1. Create, Edit & View Journals");
         System.out.println("2. View Weekly Mood Summary");
         System.out.print("> ");
 
+        // Input Validation Loop
         int function;
         while (true) {
             String in = sc.nextLine();
@@ -71,6 +76,7 @@ public class Welcome_Journal {
             System.out.print("> ");
         }
 
+        // Redirect to the correct function
         if (function == 1) {
             showJournalMenu();
         } else if (function == 0) {
@@ -87,6 +93,7 @@ public class Welcome_Journal {
         return new File(JOURNAL + userEmail + "_" + date.format(fmt) + ".txt");
     }
 
+    // Action Menu
     private void showDateActions(LocalDate date) {
         File f = getDailyFile(date);
         boolean exists = f.exists() && f.length() > 0;
@@ -124,6 +131,7 @@ public class Welcome_Journal {
         }
     }
 
+    // Writing the Journal (Edit)
     private void editDailyJournal(LocalDate date) {
         File file = getDailyFile(date);
 
@@ -135,16 +143,19 @@ public class Welcome_Journal {
         String entry = sc.nextLine();
         System.out.println("Saving. Please wait...");
 
+        // Call the API to get Mood and Weather
         String moodData;
         String weatherData;
         try {
-            moodData = API.getMood(entry);
-            weatherData = API.getWeather();
+            moodData = API.getMood(entry); // Send text to AI
+            weatherData = API.getWeather(); // Get weather from Gov API
         } catch (Exception e) {
             moodData = "Analysis unavailable";
             weatherData = "Weather unavailable";
         }
 
+        // Save everything to the file
+        // "false" in FileWriter means overwrite the file
         try (PrintWriter writer = new PrintWriter(new FileWriter(file, false))) {
             writer.println("Date : " + date);
             writer.println("Content : " + entry);
@@ -159,6 +170,7 @@ public class Welcome_Journal {
         showDateActions(date);
     }
 
+    // Reading the Journal (View)
     private void viewDailyJournal(LocalDate date) {
         File file = getDailyFile(date);
         if (!file.exists() || file.length() == 0) {
@@ -171,6 +183,7 @@ public class Welcome_Journal {
         String weather = "-";
         String mood = "-";
 
+        // Read the file line by line and separate Content from Metadata
         try (Scanner reader = new Scanner(file)) {
             while (reader.hasNextLine()) {
                 String line = reader.nextLine().trim();
@@ -191,6 +204,7 @@ public class Welcome_Journal {
             return;
         }
 
+        // Display results
         System.out.println("\n=== Journal Entry for " + date + " ===");
         System.out.println(content);
         System.out.println("\nWeather: " + weather);
@@ -203,6 +217,8 @@ public class Welcome_Journal {
         showDateActions(date);
     }
 
+    // Journal Menu
+    // Displays the last 4 days dynamically so the user can write entries for past dates
     public void showJournalMenu() {
         LocalDate today = LocalDate.now();
         DateTimeFormatter today_format = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -219,6 +235,7 @@ public class Welcome_Journal {
 
         String input;
         int day = 0;
+        // Input Loop
         do {
             input = sc.nextLine();
             if (!input.matches("[1-5]")) {
@@ -229,6 +246,7 @@ public class Welcome_Journal {
 
         day = Integer.parseInt(input);
 
+        // Back Button
         if (day == 5) {
             // Back to SMART JOURNAL FEATURES if callback exists, else back to this menu
             if (onBackToFeatures != null) {
@@ -239,6 +257,8 @@ public class Welcome_Journal {
             return;
         }
 
+        //Date Math
+        // Converts menu choice (1-4) into an actual Date object
         LocalDate selectedDate = today.minusDays(4 - day);
         showDateActions(selectedDate);
     }
@@ -256,6 +276,7 @@ public class Welcome_Journal {
         viewDailyJournal(date);
     }
 
+    // Wipes today's data and kills the program instantly
     private void terminateClear () {
         LocalDate today = LocalDate.now();
         DateTimeFormatter today_format = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -274,6 +295,7 @@ public class Welcome_Journal {
         }
 
         System.out.println("Program terminated successfully.");
+        // Hard exit
         System.exit(0);
     }
 }

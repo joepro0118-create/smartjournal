@@ -36,6 +36,7 @@ public class API {
         return out.toString();
     }
 
+    // Checks if we should print technical error messages
     private static boolean isDebugEnabled() {
         // Enable by setting API_DEBUG=true in environment variables or .env
         // (System env is checked first.)
@@ -52,6 +53,7 @@ public class API {
     }
 
     // Very small local fallback so obvious cases work even if API fails/rate-limits
+    // It scans the text for simple keywords like "sad" or "happy"
     private static String fallbackMood(String journalText) {
         if (journalText == null) return "NEUTRAL";
         String t = journalText.toLowerCase(Locale.ROOT);
@@ -61,7 +63,7 @@ public class API {
         t = t.replace("can't", "cant");
         t = t.replace("won't", "wont");
 
-        // Negative keywords (expanded)
+        // Negative keywords
         if (t.contains("sad") || t.contains("depressed") || t.contains("unhappy") || t.contains("angry") || t.contains("upset")
                 || t.contains("hate") || t.contains("bad") || t.contains("tired") || t.contains("stress") || t.contains("stressed")
                 || t.contains("cry") || t.contains("crying") || t.contains("tears") || t.contains("terrible") || t.contains("broken")
@@ -127,12 +129,13 @@ public class API {
         conn.setRequestMethod("POST");
         conn.setRequestProperty("Accept", "application/json");
         conn.setRequestProperty("Content-Type", "application/json");
+        // Sends the API Key (Token) for permission
         conn.setRequestProperty("Authorization", "Bearer " + bearerToken);
 
-        // Enable sending body
+        // Allow sending data out
         conn.setDoOutput(true);
 
-        // Write request body
+        // Write the JSON data to the server
         try (OutputStream os = conn.getOutputStream()) {
             byte[] input = jsonBody.getBytes("utf-8");
             os.write(input, 0, input.length);
@@ -156,6 +159,7 @@ public class API {
         return sb.toString();
     }
 
+    // A main method for testing this file manually
     // Optional manual test runner (only used if you run `java org.example.API` directly)
     public static void main(String[] args) {
         System.out.println("Weather now: " + getWeather());
@@ -170,6 +174,7 @@ public class API {
             String cacheBustedUrl = getURL + "&t=" + URLEncoder.encode(String.valueOf(System.currentTimeMillis()), StandardCharsets.UTF_8);
             String response = get(cacheBustedUrl);
 
+            // Manually search the text response for "summary_forecast"
             String targetLabel = "\"summary_forecast\":\"";
             int startIndex = response.indexOf(targetLabel);
             if (startIndex == -1) {
@@ -177,11 +182,13 @@ public class API {
             }
             startIndex = startIndex + targetLabel.length();
 
+            // Find where the forecast text ends (the next quote ")
             int endIndex = response.indexOf("\"", startIndex);
             if (endIndex == -1 || endIndex <= startIndex) {
                 return "Weather data unavailable";
             }
 
+            // Extract the word (eg "Thunderstorms")
             String weather = response.substring(startIndex, endIndex).trim();
             return weather.isEmpty() ? "Weather data unavailable" : weather;
 
@@ -193,12 +200,16 @@ public class API {
 
     // --- NEW METHOD: Get the Mood (Positive/Negative) ---
     public static String getMood(String journalText) {
+        // 1. Calculate the local "Backup Plan" mood first
         String local = fallbackMood(journalText);
         boolean debug = isDebugEnabled();
 
         try {
+            // 2. Load the API Key from .env
             Map<String, String> env = EnvLoader.loadEnv(".env");
             String token = env.get("BEARER_TOKEN");
+
+            // If no token exists, just use the local backup
             if (token == null) {
                 if (debug) System.out.println("[API.getMood] No token; using fallback=" + local);
                 return local;
@@ -209,11 +220,14 @@ public class API {
                 return local;
             }
 
+            // 3. Prepare the data for the AI
             String safeText = jsonEscape(journalText);
             String jsonBody = "{\"inputs\":\"" + safeText + "\"}";
 
+            // 4. Send to AI
             String response = post(postURL, token, jsonBody);
 
+            // 5. Read the AI's response (Looking for "label":"NEGATIVE" or "POSITIVE")
             String targetLabel = "\"label\":\"";
             int startIndex = response.indexOf(targetLabel);
             if (startIndex == -1) {
@@ -228,6 +242,7 @@ public class API {
                 return local;
             }
 
+            // Clean up the result
             String label = response.substring(startIndex, endIndex).trim().toUpperCase(Locale.ROOT);
             String normalized;
             if (label.contains("NEG")) normalized = "NEGATIVE";
@@ -250,6 +265,7 @@ public class API {
             return normalized;
 
         } catch (Exception e) {
+            // If anything crashes (no internet, API down), return the backup mood
             if (debug) {
                 System.out.println("[API.getMood] Exception calling API; using fallback=" + local + " error=" + e.getMessage());
             }

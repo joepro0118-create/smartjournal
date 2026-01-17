@@ -8,13 +8,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UserManager {
+    // The name of the database file on local
     private static final String FILE_PATH = "UserData.txt";
+
+    // A list in memory to hold all users while the app is running
     private List<User> users = new ArrayList<>();
 
     public UserManager() {
         loadUsers();
-    }
+    } // Load existing accounts from the file
 
+    // Reads "UserData.txt" line by line to rebuild the list of users.
     private void loadUsers() {
         File file = new File(FILE_PATH);
         if (!file.exists()) return;
@@ -29,6 +33,7 @@ public class UserManager {
                 String name = reader.readLine();
                 String hashedPass = reader.readLine();
 
+                // If we successfully read all 3 parts, create the User object
                 if (name != null && hashedPass != null) {
                     users.add(new User(email, name.trim(), hashedPass.trim()));
                 }
@@ -37,13 +42,15 @@ public class UserManager {
             System.err.println("Error loading users: " + e.getMessage());
         }
     }
-
+    // Password Hashing
+    // Turns "password123" into "ef92b778bafe771e..."
     private String hashPassword(String originalPassword) {
         try {
             // Ensure we use UTF-8 explicitly to match the registration hash
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             byte[] encodedhash = digest.digest(originalPassword.getBytes(java.nio.charset.StandardCharsets.UTF_8));
 
+            // Convert byte code into readable Hexadecimal text
             StringBuilder hexString = new StringBuilder();
             for (byte b : encodedhash) {
                 String hex = Integer.toHexString(0xff & b);
@@ -56,6 +63,7 @@ public class UserManager {
         }
     }
 
+    // Login
     public User login(String email, String password) {
         if (email == null || password == null) return null;
 
@@ -63,6 +71,7 @@ public class UserManager {
         String cleanEmail = email.trim().toLowerCase();
         String cleanPassword = password.trim();
 
+        // Hash the password the user just typed
         String inputHash = hashPassword(cleanPassword);
 
         for (User u : users) {
@@ -70,6 +79,7 @@ public class UserManager {
             String storedEmail = u.getEmail().trim().toLowerCase();
             String storedHash = u.getPassword().trim();
 
+            // If email matches and the password hashes match, login is successful
             if (storedEmail.equals(cleanEmail) && storedHash.equals(inputHash)) {
                 return u;
             }
@@ -77,13 +87,17 @@ public class UserManager {
         return null;
     }
 
+    // Register
     public boolean register(String email, String name, String password) {
+        // Basic validation check
         if (isInvalid(email) || isInvalid(name) || isInvalid(password)) {
             return false;
         }
 
-        // IMPORTANT: Save email as lowercase so login works regardless of caps
+        // Hash the password before saving it
         String securePassword = hashPassword(password.trim());
+
+        // Save email as lowercase so login works regardless of caps
         User newUser = new User(email.trim().toLowerCase(), name.trim(), securePassword);
 
         users.add(newUser);
@@ -91,10 +105,12 @@ public class UserManager {
         return true;
     }
 
+    // Helper to check for bad input
     private boolean isInvalid(String input) {
         return input == null || input.trim().isEmpty();
     }
 
+    // Appends the new user to the end of "UserData.txt"
     private void saveUserToFile(User user) {
         // Use OutputStreamWriter to force UTF-8 when saving
         try (PrintWriter writer = new PrintWriter(new OutputStreamWriter(new FileOutputStream(FILE_PATH, true), StandardCharsets.UTF_8))) {
