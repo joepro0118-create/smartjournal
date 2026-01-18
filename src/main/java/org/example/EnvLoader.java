@@ -16,11 +16,13 @@ public class EnvLoader {
      * @return a Map containing the environment variables as key-value pairs
      */
     public static Map<String, String> loadEnv(String filePath) {
+        // Use a Map to store the settings (Key -> Value)
         Map<String, String> env = new HashMap<>();
         
         try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
             String line;
-            
+
+            // Loop through the file one line at a time
             while ((line = reader.readLine()) != null) {
                 // Skip empty lines or comments
                 line = line.trim();
@@ -33,15 +35,17 @@ public class EnvLoader {
                     String key = parts[0].trim();
                     String value = parts[1].trim();
 
-                    // Optionally, remove quotes from value (if you want to support that)
+                    // Remove quotes from value in case of accidentally writing: KEY="value"
                     if ((value.startsWith("\"") && value.endsWith("\"")) || (value.startsWith("'") && value.endsWith("'"))) {
                         value = value.substring(1, value.length() - 1);
                     }
 
+                    // Store it in the map
                     env.put(key, value);
                 }
             }
         } catch (Exception e) {
+            // If the file is missing or unreadable, print an error but don't crash everything
             System.err.println("Failed to load .env file: " + e.getMessage());
         }
         

@@ -10,6 +10,8 @@ public class Main {
         UserManager userManager = new UserManager();
         Scanner scanner = new Scanner(System.in);
 
+        // Outer Loop
+        // The Main Menu: Start Screen
         while (true) {
             System.out.println("\n--- SMART JOURNAL SYSTEM ---");
             System.out.println("1. Login");
@@ -20,19 +22,25 @@ public class Main {
             String choice = scanner.nextLine();
 
             switch (choice) {
+                // Login
                 case "1": {
                     System.out.print("Enter Email: ");
                     String email = scanner.nextLine();
                     System.out.print("Enter Password: ");
                     String pass = scanner.nextLine();
 
+                    // Check if the user exists and password is correct
                     User user = userManager.login(email, pass);
                     if (user != null) {
                         System.out.println("SUCCESS: Welcome back, " + user.getDisplayName());
 
                         Welcome.printGreeting(user.getDisplayName());
 
+                        // We use a boolean array so we can change this value inside the lambda function below
+                        // It tracks if the user wants to go "Back"
                         final boolean[] backToFeatures = { false };
+
+                        // Setup the Journal screen
                         Welcome_Journal welcome = new Welcome_Journal(
                                 user.getEmail(),
                                 user.getDisplayName(),
@@ -40,6 +48,9 @@ public class Main {
                         );
 
                         boolean loggedIn = true;
+
+                        // Inner Loop
+                        // The Dashboard: Logged In Area
                         while (loggedIn) {
                             backToFeatures[0] = false;
 
@@ -52,6 +63,7 @@ public class Main {
                             String featureChoice = scanner.nextLine();
                             switch (featureChoice) {
                                 case "1":
+                                    // Open the Journal writing screen
                                     welcome.showJournalMenu();
                                     // if user pressed Back, just show the features menu again
                                     if (backToFeatures[0]) {
@@ -59,9 +71,11 @@ public class Main {
                                     }
                                     break;
                                 case "2":
+                                    // Show the summary stats
                                     WeeklySummary.showSummary(user.getEmail());
                                     break;
                                 case "3":
+                                    // Logout
                                     System.out.println("You have been logged out.");
                                     loggedIn = false;
                                     break;
@@ -74,6 +88,7 @@ public class Main {
                     }
                     break;
                 }
+                // Register
                 case "2": {
                     System.out.print("Enter New Email: ");
                     String email = scanner.nextLine();
@@ -82,6 +97,7 @@ public class Main {
                     System.out.print("Enter Password: ");
                     String pass = scanner.nextLine();
 
+                    // Create the new account
                     boolean success = userManager.register(email, name, pass);
                     if (success) {
                         System.out.println("SUCCESS: Account created! You can now log in.");
@@ -90,6 +106,7 @@ public class Main {
                     }
                     break;
                 }
+                // Exit
                 case "3":
                     System.out.println("Goodbye!");
                     scanner.close();
